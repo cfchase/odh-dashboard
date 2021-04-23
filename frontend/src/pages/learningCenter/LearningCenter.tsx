@@ -17,11 +17,33 @@ import {
   SORT_ASC,
   SORT_DESC,
   SORT_TYPE_NAME,
+  SORT_TYPE_TYPE,
 } from './learningCenterUtils';
 import LearningCenterFilters from './LearningCenterFilters';
 import { useWatchDocs } from '../../utilities/useWatchDocs';
 
 const description = `Access all learning resources for Red Hat OpenShift Data Science and supported applications.`;
+
+// Summit hack to sort quickstarts first when sorting by type.
+const typeSortNumber = (a: ODHDoc): number => {
+  switch (a.metadata.type) {
+    case 'quickstart': {
+      return 0;
+    }
+    case 'how-to': {
+      return 1;
+    }
+    case 'tutorial': {
+      return 2;
+    }
+    case 'documentation': {
+      return 3;
+    }
+    default: {
+      return 4;
+    }
+  }
+};
 
 const LearningCenter: React.FC = () => {
   const { docs: odhDocs, loaded: docsLoaded, loadError: docsLoadError } = useWatchDocs();
@@ -35,7 +57,8 @@ const LearningCenter: React.FC = () => {
   const typeFilters = React.useMemo(() => {
     return filters?.split(',') || [];
   }, [filters]);
-  const sortType = queryParams.get(DOC_SORT_KEY) || SORT_TYPE_NAME;
+  // Summit hack to sort by type by default.
+  const sortType = queryParams.get(DOC_SORT_KEY) || SORT_TYPE_TYPE;
   const sortOrder = queryParams.get(DOC_SORT_ORDER_KEY) || SORT_ASC;
 
   React.useEffect(() => {
@@ -96,7 +119,7 @@ const LearningCenter: React.FC = () => {
           let sortVal =
             sortType === SORT_TYPE_NAME
               ? a.spec.displayName.localeCompare(b.spec.displayName)
-              : a.metadata.type.localeCompare(b.metadata.type);
+              : typeSortNumber(a) - typeSortNumber(b); // Summit hack to sort quickstarts first by default.
           if (sortOrder === SORT_DESC) {
             sortVal *= -1;
           }

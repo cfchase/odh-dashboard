@@ -20,6 +20,12 @@ module.exports = async ({ fastify, request }) => {
 
   // Get the components associated with the installed KfDefs or operators
   const installedComponents = applicationDefs.reduce((acc, app) => {
+    // Summit hack to override enabled flags.
+    if (app.spec.isEnabled === true) {
+      acc.push(app);
+      return acc;
+    }
+
     if (getCSVForApp(app)) {
       app.spec.isEnabled = true;
       acc.push(app);
