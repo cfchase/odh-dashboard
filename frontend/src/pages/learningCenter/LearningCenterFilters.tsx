@@ -58,7 +58,8 @@ const LearningCenterFilters: React.FC<LearningCenterFilterProps> = ({
     return filters?.split(',') || [];
   }, [filters]);
   const [searchInputText, setSearchInputText] = React.useState(searchQuery);
-  const sortType = queryParams.get(DOC_SORT_KEY) || SORT_TYPE_NAME;
+  // Summit hack to sort by type by default.
+  const sortType = queryParams.get(DOC_SORT_KEY) || SORT_TYPE_TYPE;
   const sortOrder = queryParams.get(DOC_SORT_ORDER_KEY) || SORT_ASC;
 
   const docTypes = {

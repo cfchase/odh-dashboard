@@ -16,3 +16,4 @@ spec:
   support: third paty support
   quickStart: 'seldon-deploy-model-canary'
   getStartedLink: 'https://deploy.seldon.io/docs/getting-started'
+  isEnabled: true # Summit hack to always enable Seldon Deploy
