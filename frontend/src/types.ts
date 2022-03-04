@@ -132,3 +132,19 @@ export type ImageTag = {
   image: string;
   tag: string;
 };
+
+export type Project = {
+  kind: string;
+  apiVersion: string;
+  metadata: {
+    name: string;
+    displayName?: string;
+    labels?: { [key: string]: string };
+    annotations?: { [key: string]: string };
+  };
+};
+
+export type ProjectList = {
+  metadata: Record<string, unknown>;
+  items: Project[];
+};

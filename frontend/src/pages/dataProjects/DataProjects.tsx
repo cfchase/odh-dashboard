@@ -24,16 +24,30 @@ import { projects } from './mockData';
 import './DataProjects.scss';
 import { CubesIcon } from '@patternfly/react-icons';
 import CreateProjectModal from './CreateProjectModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchDataProjects } from '../../services/dataProjectsService';
+import { State } from '../../redux/types';
+import { ProjectList } from '../../types';
 
 const description = `Create new projects, or view everything you've been working on here.`;
 
 export const DataProjects: React.FC = () => {
   const loaded = true; // temp
-  const isEmpty = false; // temp
   const [viewType, setViewType] = useLocalStorage(VIEW_TYPE);
   const [isTableDrawerExpanded, setTableDrawerExpanded] = React.useState(false);
   const [selectedProject, setSelectedProject] = React.useState(null);
   const [isCreateProjectModalOpen, setCreateProjectModalOpen] = React.useState(false);
+  const dataProjects: ProjectList | null | undefined = useSelector<
+    State,
+    ProjectList | null | undefined
+  >((state) => state.dataProjectsState.dataProjects);
+  const displayedProjects = dataProjects ? dataProjects.items || [] : [];
+  const isEmpty = displayedProjects.length <= 0;
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    dispatch(fetchDataProjects());
+  }, [dispatch]);
 
   const handleCreateProjectModalClose = () => {
     setCreateProjectModalOpen(false);
@@ -93,7 +107,7 @@ export const DataProjects: React.FC = () => {
             >
               <DrawerContentBody>
                 <DataProjectsTableToolbar setCreateProjectModalOpen={setCreateProjectModalOpen} />
-                <DataProjectsTable projects={projects} onSelect={onProjectSelect} />
+                <DataProjectsTable projects={displayedProjects} onSelect={onProjectSelect} />
               </DrawerContentBody>
             </DrawerContent>
           </Drawer>

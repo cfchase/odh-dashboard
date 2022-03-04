@@ -214,3 +214,22 @@ export type BuildStatus = {
   status: BUILD_PHASE;
   timestamp?: string;
 };
+
+export type Project = {
+  apiVersion?: string;
+  kind?: string;
+  metadata: {
+    name: string;
+    labels?: { [key: string]: string };
+    annotations?: { [key: string]: string };
+  };
+  displayName?: string,
+  description?: string,
+} & K8sResourceCommon;
+
+export type ProjectList = {
+  apiVersion?: string;
+  kind?: string;
+  metadata: Record<string, unknown>;
+  items: Project[];
+} & K8sResourceCommon;

@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { ThunkAction } from 'redux-thunk';
-import { Actions, AppNotification, AppState, GetUserAction } from '../types';
+import { Actions, AppNotification, AppState, GetDataProjectsAction, CreateDataProjectAction, GetUserAction } from '../types';
 import { Action } from 'redux';
+import { Project, ProjectList } from '../../types';
 
 export const getUserPending = (): GetUserAction => ({
   type: Actions.GET_USER_PENDING,
@@ -82,3 +83,41 @@ export const forceComponentsUpdate = (): ThunkAction<void, AppState, unknown, Ac
     });
   };
 };
+
+export const getDataProjectsPending = (): GetDataProjectsAction => ({
+  type: Actions.GET_DATA_PROJECTS_PENDING,
+  payload: {},
+});
+
+export const getDataProjectsFulfilled = (dataProjects: ProjectList): GetDataProjectsAction => ({
+  type: Actions.GET_DATA_PROJECTS_FULFILLED,
+  payload: {
+    dataProjects,
+  },
+});
+
+export const getDataProjectsRejected = (error: Error): GetDataProjectsAction => ({
+  type: Actions.GET_DATA_PROJECTS_REJECTED,
+  payload: {
+    error,
+  },
+});
+
+export const createDataProjectPending = (): CreateDataProjectAction => ({
+  type: Actions.CREATE_DATA_PROJECT_PENDING,
+  payload: {},
+});
+
+export const createDataProjectFulfilled = (dataProject: Project): CreateDataProjectAction => ({
+  type: Actions.CREATE_DATA_PROJECT_FULFILLED,
+  payload: {
+    dataProject,
+  },
+});
+
+export const createDataProjectRejected = (error: Error): CreateDataProjectAction => ({
+  type: Actions.CREATE_DATA_PROJECT_REJECTED,
+  payload: {
+    error,
+  },
+});

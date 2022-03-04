@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { Button, Form, FormGroup, Modal, ModalVariant, TextInput } from '@patternfly/react-core';
 import { useHistory } from 'react-router-dom';
+import { OdhDocument, Project, ProjectList } from '../../types';
+import { useDispatch, useSelector } from 'react-redux';
+import { State } from '../../redux/types';
+import { createDataProject, fetchDataProjects } from '../../services/dataProjectsService';
+import { fetchDocs } from '../../services/docsService';
 
 type CreateProjectModalProps = {
   isModalOpen: boolean;
@@ -11,6 +16,9 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isModalOpen, on
   const history = useHistory();
   const [projectName, setProjectName] = React.useState('');
   const [projectDescription, setProjectDescription] = React.useState('');
+  const [createProjectPending, setCreateProjectPending] = React.useState(false);
+  const [createProjectFullfilled, setCreateProjectFulfilled] = React.useState(false);
+  const [createProjectError, setCreateProjectError] = React.useState(undefined);
   const nameInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
@@ -27,8 +35,16 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isModalOpen, on
   };
 
   const onCreateProject = () => {
-    console.log('do something');
-    history.push(`/data-projects/${projectName}`); // do this in callback function if successfully created
+    setCreateProjectPending(true);
+    createDataProject(projectName, projectDescription)
+      .then((project: Project) => {
+        setCreateProjectFulfilled(true);
+        setCreateProjectError(undefined);
+        history.push(`/data-projects/${project.metadata?.name}`);
+      })
+      .catch((e) => {
+        setCreateProjectError(e);
+      });
   };
 
   return (

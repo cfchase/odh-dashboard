@@ -25,10 +25,7 @@ export const DataProjectDetails: React.FC = () => {
   const [activeEnvironment, setActiveEnvironment] = React.useState(null);
 
   const project = projects.find((project) => project.metadata.name === projectName);
-
-  if (!project) {
-    return <Redirect to="/data-projects" />;
-  }
+  const projectDisplayName = project?.metadata?.name || projectName;
 
   const handleCreateEnvironmentModalClose = () => {
     setCreateEnvironmentModalOpen(false);
@@ -38,13 +35,14 @@ export const DataProjectDetails: React.FC = () => {
     <>
       <Breadcrumb className="odh-data-projects__breadcrumb">
         <BreadcrumbItem to="/data-projects">Data Projects</BreadcrumbItem>
-        <BreadcrumbItem isActive>{project.metadata.name}</BreadcrumbItem>
+        <BreadcrumbItem isActive>{projectDisplayName}</BreadcrumbItem>
       </Breadcrumb>
       <ApplicationsPage
-        title={project.metadata.name + ' Details'}
+        title={projectDisplayName + ' Details'}
         description={description}
         loaded={isLoaded}
-        empty={false}
+        empty={!project}
+        emptyMessage={'404: Project Not Found'}
       >
         <PageSection variant="light" padding={{ default: 'noPadding' }} isFilled>
           <div className="odh-data-projects__details">
@@ -66,7 +64,7 @@ export const DataProjectDetails: React.FC = () => {
                 </Button>
               </FlexItem>
             </Flex>
-            {project.spec.environments
+            {project?.spec.environments
               ? project.spec.environments.map((environment) => (
                   <EnvironmentCard
                     key={environment.name}
