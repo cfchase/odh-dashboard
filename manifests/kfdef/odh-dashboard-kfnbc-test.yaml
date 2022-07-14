@@ -3,7 +3,7 @@ kind: KfDef
 metadata:
   annotations:
     kfctl.kubeflow.io/force-delete: "false"
-  name: odh-dashboard-kfnbc-test
+  name: cchase-test
   namespace: opendatahub
 spec:
   applications:
@@ -32,4 +32,4 @@ spec:
   - name: manifests
     uri: https://github.com/opendatahub-io/odh-manifests/tarball/master
   - name: manifests-dashboard  # Use the manifests from the odh-dashboard repo
-    uri: https://github.com/opendatahub-io/odh-dashboard/tarball/main
+    uri: https://github.com/cfchase/odh-dashboard/tarball/cchase-test

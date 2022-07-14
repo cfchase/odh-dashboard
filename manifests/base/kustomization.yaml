@@ -15,5 +15,5 @@ resources:
 - service.yaml
 images:
 - name: odh-dashboard
-  newName: quay.io/opendatahub/odh-dashboard
-  newTag: latest
+  newName: quay.io/cfchase/odh-dashboard
+  newTag: cchase-test
