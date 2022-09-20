@@ -290,19 +290,16 @@ export const sanitizeNotebookForSecurity = async <
     });
 
     // Volume mounts
+    const volumeAllowedValue = `jupyterhub-nb-${translatedUsername}-pvc`;
     container.volumeMounts?.forEach((volumeMount) => {
-      if (volumeMount.name.startsWith('jupyterhub-nb-')) {
-        // The volume mount's PVC we generated
-        const allowedValue = `jupyterhub-nb-${translatedUsername}-pvc`;
-        if (volumeMount.name !== allowedValue) {
-          // Was not targeted at their user
-          fastify.log.warn(
-            `${username} submitted a Notebook that contained a volumeMount (${volumeMount.name}) that was not for them. Reset back to them.`,
-          );
-          fastify.log.warn(`volumeMount structure: ${JSON.stringify(volumeMount)}`);
+      if (volumeMount.name !== volumeAllowedValue) {
+        // Was not targeted at their user
+        fastify.log.warn(
+          `${username} submitted a Notebook that contained a volumeMount (${volumeMount.name}) that was not for them. Reset back to them.`,
+        );
+        fastify.log.warn(`volumeMount structure: ${JSON.stringify(volumeMount)}`);
 
-          volumeMount.name = allowedValue;
-        }
+        volumeMount.name = volumeAllowedValue;
       }
     });
   });
