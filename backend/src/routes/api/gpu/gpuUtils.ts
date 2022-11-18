@@ -33,7 +33,7 @@ export const getGPUNumber = async (fastify: KubeFastifyInstance): Promise<GPUInf
       return { items: [] } as V1PodList;
     });
   const scalingLimit = await getGPUScaling(fastify);
-  if (gpuPodList.items.length != 0) {
+  if (gpuPodList.items.length != 0 && fastify.kube.currentToken) {
     areGpusConfigured = true;
     const gpuDataResponses = [];
     for (let i = 0; i < gpuPodList.items.length; i++) {
@@ -77,7 +77,9 @@ export const getGPUData = async (
       hostname: 'thanos-querier.openshift-monitoring.svc.cluster.local',
       port: 9091,
       //Encode the raw prometheus query to remove any need for manual encoding
-      path: encodeURI(`/api/v1/query?query=count (count by (UUID,GPU_I_ID)(DCGM_FI_PROF_GR_ENGINE_ACTIVE{instance="${podIP}:9400"}) or vector(0))-count (count by (UUID,GPU_I_ID)(DCGM_FI_PROF_GR_ENGINE_ACTIVE{instance="${podIP}:9400",exported_pod=~".+"}) or vector(0))`),
+      path: encodeURI(
+        `/api/v1/query?query=count (count by (UUID,GPU_I_ID)(DCGM_FI_PROF_GR_ENGINE_ACTIVE{instance="${podIP}:9400"}) or vector(0))-count (count by (UUID,GPU_I_ID)(DCGM_FI_PROF_GR_ENGINE_ACTIVE{instance="${podIP}:9400",exported_pod=~".+"}) or vector(0))`,
+      ),
       headers: {
         Authorization: `Bearer ${token}`,
       },
