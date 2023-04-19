@@ -1,6 +1,12 @@
 import { K8sResourceCommon } from '@openshift/dynamic-plugin-sdk-utils';
 import { PodAffinity, NotebookContainer, PodToleration, Volume, ContainerResources } from './types';
 
+export enum KnownLabels {
+  DASHBOARD_RESOURCE = 'opendatahub.io/dashboard',
+  MODEL_SERVING_PROJECT = 'modelmesh-enabled',
+  DATA_CONNECTION_AWS = 'opendatahub.io/managed',
+}
+
 export type K8sVerb =
   | 'create'
   | 'get'
@@ -49,6 +55,14 @@ export type NotebookAnnotations = Partial<{
   'notebooks.opendatahub.io/last-image-selection': string; // the last image they selected
   'notebooks.opendatahub.io/last-size-selection': string; // the last notebook size they selected
 }>;
+
+export type DashboardLabels = {
+  [KnownLabels.DASHBOARD_RESOURCE]: 'true';
+};
+
+export type ModelServingProjectLabels = {
+  [KnownLabels.MODEL_SERVING_PROJECT]: 'true' | 'false';
+};
 
 export type BuildConfigKind = K8sResourceCommon & {
   metadata: {
@@ -224,12 +238,14 @@ export type PodKind = K8sResourceCommon & {
   };
 };
 
+/** Assumed Dashboard Project -- if we need more beyond that we should break this type up */
 export type ProjectKind = K8sResourceCommon & {
   metadata: {
     annotations?: DisplayNameAnnotations &
       Partial<{
         'openshift.io/requester': string; // the username of the user that requested this project
       }>;
+    labels: DashboardLabels & Partial<ModelServingProjectLabels>;
     name: string;
   };
   status?: {
@@ -372,9 +388,79 @@ export type AWSSecretKind = SecretKind & {
   metadata: {
     annotations?: DisplayNameAnnotations;
     labels?: {
-      'opendatahub.io/managed': 'true';
+      [KnownLabels.DATA_CONNECTION_AWS]: 'true';
     };
   };
+};
+
+export type DSPipelineKind = K8sResourceCommon & {
+  spec: Partial<{
+    apiServer: Partial<{
+      apiServerImage: string;
+      artifactImage: string;
+      artifactScriptConfigMap: Partial<{
+        key: string;
+        name: string;
+      }>;
+    }>;
+    database: Partial<{
+      customDB: Partial<{
+        host: string;
+        passwordSecret: Partial<{
+          key: string;
+          name: string;
+        }>;
+        pipelineDBName: string;
+        port: string;
+        username: string;
+      }>;
+      image: string;
+      mariaDB: Partial<{
+        image: string;
+        passwordSecret: Partial<{
+          key: string;
+          name: string;
+        }>;
+        pipelineDBName: string;
+        username: string;
+      }>;
+    }>;
+    mlpipelineUI: Partial<{
+      configMap: string;
+      image: string;
+    }>;
+    persistentAgent: Partial<{
+      image: string;
+      pipelineAPIServerName: string;
+    }>;
+    scheduledWorkflow: Partial<{
+      image: string;
+    }>;
+    objectStorage: Partial<{
+      customStorage: Partial<{
+        bucket: string;
+        host: string;
+        port: string;
+        s3CredentialsSecret: Partial<{
+          accessKey: string;
+          secretKey: string;
+          secretName: string;
+        }>;
+      }>;
+      minio: Partial<{
+        bucket: string;
+        image: string;
+        s3CredentialsSecret: Partial<{
+          accessKey: string;
+          secretKey: string;
+          secretName: string;
+        }>;
+      }>;
+    }>;
+    viewerCRD: Partial<{
+      image: string;
+    }>;
+  }>;
 };
 
 export type AccessReviewResourceAttributes = {
@@ -401,5 +487,68 @@ export type SelfSubjectAccessReviewKind = K8sResourceCommon & {
     denied?: boolean;
     reason?: string;
     evaluationError?: string;
+  };
+};
+
+export type PipelineRunTaskSpecDigest = {
+  name: string;
+  outputs: unknown[]; // TODO: detail outputs
+  version: string;
+};
+
+type PipelineRunTaskSpecStep = {
+  name: string;
+  args: string[];
+  command: string[];
+  image: string;
+};
+
+type PipelineRunTaskSpecResult = {
+  name: string;
+  type: string;
+  description?: string;
+};
+
+export type PipelineRunTaskSpec = {
+  steps: PipelineRunTaskSpecStep[];
+  results: PipelineRunTaskSpecResult[];
+  metadata: {
+    annotations: {
+      /** @see PipelineRunTaskSpecDigest */
+      'pipelines.kubeflow.org/component_spec_digest': string;
+    };
+    labels: {
+      'pipelines.kubeflow.org/cache_enabled': 'true';
+    };
+  };
+};
+export type PipelineRunTaskParam = {
+  name: string;
+  value: string;
+};
+
+export type PipelineRunTaskWhen = {
+  input: string;
+  operator: string;
+  values: string[];
+};
+
+export type PipelineRunTask = {
+  name: string;
+  taskSpec: PipelineRunTaskSpec;
+  params?: PipelineRunTaskParam[];
+  when?: PipelineRunTaskWhen[];
+  // TODO: favour this
+  runAfter?: string[];
+};
+
+export type PipelineRunKind = K8sResourceCommon & {
+  metadata: {
+    name: string;
+  };
+  spec: {
+    pipelineSpec: {
+      tasks: PipelineRunTask[];
+    };
   };
 };

@@ -19,6 +19,11 @@ const NotebookController = React.lazy(
   () => import('../pages/notebookController/NotebookController'),
 );
 
+const GlobalPipelinesRoutes = React.lazy(() => import('../pages/pipelines/GlobalPipelinesRoutes'));
+const GlobalPipelineRunsRoutes = React.lazy(
+  () => import('../pages/pipelines/GlobalPipelineRunsRoutes'),
+);
+
 const ClusterSettingsPage = React.lazy(() => import('../pages/clusterSettings/ClusterSettings'));
 const GroupSettingsPage = React.lazy(() => import('../pages/groupSettings/GroupSettings'));
 const LearningCenterPage = React.lazy(() => import('../pages/learningCenter/LearningCenter'));
@@ -51,6 +56,9 @@ const AppRoutes: React.FC = () => {
           element={<NotebookLogoutRedirectPage />}
         />
         <Route path="/modelServing/*" element={<ModelServingRoutes />} />
+        <Route path="/pipelines/*" element={<GlobalPipelinesRoutes />} />
+        <Route path="/pipelineRuns/*" element={<GlobalPipelineRunsRoutes />} />
+
         {isAdmin && <Route path="/notebookImages" element={<BYONImagesPage />} />}
         {isAdmin && <Route path="/clusterSettings" element={<ClusterSettingsPage />} />}
         {isAdmin && <Route path="/groupSettings" element={<GroupSettingsPage />} />}
