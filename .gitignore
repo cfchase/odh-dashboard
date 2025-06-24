@@ -1,6 +1,7 @@
 # editor
 .idea/
 .vscode/
+.claude/
 
 # misc
 .DS_Store
